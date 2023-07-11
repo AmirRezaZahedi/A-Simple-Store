@@ -47,54 +47,73 @@ class Goods:
                     self.price = Price
                     self.quantity = Quantity
                     # Save information in file (csv)
-                    data = [[self.name, self.price, self.quantity]]
+                    data = [[self.name, str(self.price), str(self.quantity)]]
                     writer = csv.writer(file)
                     writer.writerows(data)
 
                     # Action to execute
-                    Goods.all.append(self)
+                    Goods.all.append(data)
         except FileNotFoundError:
             with open('Product.csv', 'w', newline='') as file:
                 writer = csv.writer(file)
                 print("The file doesn't exists!")
 
-    def changePrice(self, value):#function to change price
+    @staticmethod
+    def changePrice(name, value):#function to change price
         data = []
         with open('Product.csv', 'r', newline='') as file:
             reader = csv.reader(file)
             data = list(reader)
 
         for row in data:
-            if row[0] == self.name:
+            if row[0] == name:
                 row[1] = str(value)
                 break
-        #change value in list
-        for good in Goods.all:
-            if(good.name == self.name):
-                good.price = str(value)
+
         with open('Product.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
-    def changeQuantity(self, quantity):#function to change quantity
+
+    @staticmethod
+    def changeQuantity(name, quantity):#function to change quantity
         data = []
         with open('Product.csv', 'r', newline='') as file:
             reader = csv.reader(file)
             data = list(reader)
 
         for row in data:
-            if row.name == self.name:
+            if row[0] == name:
                 row[2] = str(quantity)
                 break
 
         with open('Product.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
+    @classmethod
+    def showGoods(cls):
+        try:
+            with open('Product.csv', 'r+', newline='') as file:
+                reader = csv.reader(file)
+                data = list(reader)
+                cls.all = data
+                for i in range(len(cls.all)):
+                    print(f"item{i+1} - name is: {cls.all[i][0]}, price is: {cls.all[i][1]}, quality is: {cls.all[i][2]}")
+        except FileNotFoundError:
+            with open('Product.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                print("The file doesn't exists!")
+
+
 
 
 if __name__ == "__main__":
     # Create instances of Goods
     item1 = Goods("Product A", 10.99, 5)
-    item1.changePrice(955)
+    item2 = Goods("Product B", 1000.99, 55)
+    item3 = Goods("Product C", 100.99, 85)
+    Goods.changePrice("Product A", 85)
+    Goods.changeQuantity("Product B", 85)
+    Goods.showGoods()
     '''
     # Access and modify attributes
     print(item1.name)  # Output: Product A

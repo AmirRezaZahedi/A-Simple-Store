@@ -50,9 +50,7 @@ class Goods:
                     data = [[self.name, str(self.price), str(self.quantity)]]
                     writer = csv.writer(file)
                     writer.writerows(data)
-
-                    # Action to execute
-                    Goods.all.append(data)
+                    
         except FileNotFoundError:
             with open('Product.csv', 'w', newline='') as file:
                 writer = csv.writer(file)

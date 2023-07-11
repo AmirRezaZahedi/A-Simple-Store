@@ -68,7 +68,10 @@ class Goods:
             if row[0] == self.name:
                 row[1] = str(value)
                 break
-
+        #change value in list
+        for good in Goods.all:
+            if(good.name == self.name):
+                good.price = str(value)
         with open('Product.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
@@ -79,7 +82,7 @@ class Goods:
             data = list(reader)
 
         for row in data:
-            if row[0] == self.name:
+            if row.name == self.name:
                 row[2] = str(quantity)
                 break
 
@@ -91,7 +94,7 @@ class Goods:
 if __name__ == "__main__":
     # Create instances of Goods
     item1 = Goods("Product A", 10.99, 5)
-
+    item1.changePrice(955)
     '''
     # Access and modify attributes
     print(item1.name)  # Output: Product A

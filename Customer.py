@@ -26,17 +26,18 @@ class customer(human):
         self.walletzBalance = walletzBalance
         self.email = email
         self.password = password
+        self.cart = ['None']
 
     @staticmethod
     def login(username, password):
         with open('Customer.csv', 'r+', newline='') as file:
-            reader = csv.reader(file)
-        for row in reader:
-            if row[4] == username and row[5] == password:
-                print("successfull . . .")
-                return customer(row[0],row[1],row[2],float(row[3]),row[4],row[5])
-            else:
-                print("Bad . . .")
+            reader = csv.reader(file) 
+            for row in reader:
+                if row[4] == username and row[5] == password:
+                    print("successfull . . .")
+                    return customer(row[0],row[1],row[2],float(row[3]),row[4],row[5])
+                else:
+                    print("Bad . . .")
 
     @staticmethod
     def register(firstName, lastName, age, walletzBalance: float, email, password):
@@ -49,8 +50,9 @@ class customer(human):
                     tmp = 1
                     break
             
-            if(tmp != 1):
-                data = [[firstName, lastName, age, walletzBalance, email, password]]
+            if(tmp == 0):
+                cus_tmp = customer(firstName, lastName, age, float(walletzBalance), email, password)
+                data = [[firstName, lastName, age, float(walletzBalance), email, password,cus_tmp.cart]]
                 writer = csv.writer(file)
                 writer.writerows(data)
 
@@ -143,21 +145,10 @@ class customer(human):
             writer = csv.writer(file)
             writer.writerows(data)
 
-    @staticmethod
-    def login(email, password):
-        data = []
-        with open('Customer.csv', 'r', newline='') as file:
-            reader = csv.reader(file)
-            data = list(reader)
-
-        for row in data:
-            if row[4] == email and row[5] == password:
-                return customer(row[0],row[1],row[2],float(row[3]),row[4],row[5])
-
     def showinformation(self):
         data = []
         try:
-            with open('Human.csv', 'r+', newline='') as file:
+            with open('Customer.csv', 'r+', newline='') as file:
                 reader = csv.reader(file)
 
                 for row in reader:

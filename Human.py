@@ -9,7 +9,6 @@ class AttributeDescriptor:
         instance.__dict__[self.name] = value
 
 class human:
-    Id_counter = 0
     firstName = AttributeDescriptor('firstName')
     lastName = AttributeDescriptor('lastName')
     age = AttributeDescriptor('age')
@@ -19,5 +18,3 @@ class human:
         self.firstName = firstName
         self.lastName = lastName
         self.age = age
-        human.Id_counter += 1
-        self.Id = human.Id_counter

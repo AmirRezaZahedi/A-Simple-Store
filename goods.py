@@ -1,3 +1,6 @@
+from prettytable import PrettyTable
+from colorama import Fore, Style
+from termcolor import colored
 import csv
 class AttributeDescriptor:
     def __init__(self, name):
@@ -94,24 +97,29 @@ class Goods:
                 reader = csv.reader(file)
                 data = list(reader)
                 cls.all = data
+                
+                table = PrettyTable()
+                table.field_names = [colored("Item", "blue"), colored("Name", "blue"), colored("Price", "blue"), colored("Quality", "blue")]
+                table.title = colored("Goods List", "green")
+                table.align = "l"
+                
                 for i in range(len(cls.all)):
-                    print(f"item{i+1} - name is: {cls.all[i][0]}, price is: {cls.all[i][1]}, quality is: {cls.all[i][2]}")
+                    table.add_row([f"Item {i+1}", cls.all[i][0], cls.all[i][1], cls.all[i][2]])
+                
+                print(Fore.YELLOW + table.get_string() + Style.RESET_ALL)
+                
         except FileNotFoundError:
             with open('Product.csv', 'w', newline='') as file:
                 writer = csv.writer(file)
-                print("The file doesn't exists!")
+                print("The file doesn't exist!")
 
 
 
 
 if __name__ == "__main__":
     # Create instances of Goods
-    item1 = Goods("Product A", 10.99, 5)
-    item2 = Goods("Product B", 1000.99, 55)
-    item3 = Goods("Product C", 100.99, 85)
-    Goods.changePrice("Product A", 85)
-    Goods.changeQuantity("Product B", 85)
-    Goods.showGoods()
+    item1 = Goods("Lap top ideapad320", 1000, 5)
+    item2 = Goods("galaxy s21", 1500, 55)
     '''
     # Access and modify attributes
     print(item1.name)  # Output: Product A

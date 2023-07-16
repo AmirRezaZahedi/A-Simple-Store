@@ -2,7 +2,7 @@ import csv
 from Human import human
 from goods import Goods
 from tabulate import tabulate
-
+import os
 class AttributeDescriptor:
     def __init__(self, name):
         self.name = name
@@ -30,14 +30,41 @@ class customer(human):
 
     @staticmethod
     def login(username, password):
-        with open('Customer.csv', 'r+', newline='') as file:
+        with open('C:\\Users\\10\\Desktop\\oop-python\\Databases\\Customer.csv', 'r+', newline='') as file:
             reader = csv.reader(file) 
             for row in reader:
                 if row[4] == username and row[5] == password:
                     print("successfull . . .")
-                    return customer(row[0],row[1],row[2],float(row[3]),row[4],row[5])
+                    return True, customer(row[0],row[1],row[2],float(row[3]),row[4],row[5])
                 else:
                     print("Bad . . .")
+                    return False, None
+                
+    def change(self,firstName, lastName, age, password):
+        data = []
+        current_directory = os.getcwd()
+        filename = "Databases\Customer.csv"
+        file_path = os.path.join(current_directory, filename)
+        self.firstName = firstName
+        self.lastName = lastName
+        self.age = age
+        self.password = password
+        with open(file_path, 'r', newline='') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+
+        for row in data:
+            if row[4] == self.email:
+                row[0] = firstName
+                row[1] = lastName
+                row[2] = (age)
+                row[5] = password
+                break
+
+        with open(file_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
+            return self
 
     @staticmethod
     def register(firstName, lastName, age, walletzBalance: float, email, password):
@@ -56,14 +83,15 @@ class customer(human):
                 writer = csv.writer(file)
                 writer.writerows(data)
 
-    def addProduct(self, name):
+
+    def addProduct(self, name, value):
         data = []
         try:
             with open('Product.csv', 'r+', newline='') as file:
                 reader = csv.reader(file)
                 for row in reader:
-                    if(row[0] == name and row[2] != '0' and int(self.walletzBalance) >= int(row[1])):
-                        self.cart.append(row)
+                    if(row[0] == name and row[2] != '0'):
+                        self.cart.append(row[0] + ":"+ str(value))
                         
                         with open('Customer.csv', 'r', newline='') as file:
                             reader = csv.reader(file)
@@ -83,36 +111,8 @@ class customer(human):
                     writer = csv.writer(file)
                     print("The file doesn't exists!")
 
-    @staticmethod
-    def changeFirstName(self,value):
-        data = []
-        with open('Customer.csv', 'r', newline='') as file:
-            reader = csv.reader(file)
-            data = list(reader)
 
-        for row in data:
-            if row[4] == self.email:
-                row[0] = value
-                break
 
-        with open('Customer.csv', 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows(data)
-    @staticmethod
-    def changeLastName(self,value):
-        data = []
-        with open('Customer.csv', 'r', newline='') as file:
-            reader = csv.reader(file)
-            data = list(reader)
-
-        for row in data:
-            if row[4] == self.email:
-                row[1] = value
-                break
-
-        with open('Customer.csv', 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows(data)
     @staticmethod
     def changewalletzBalance(self,value):
         data = []
@@ -129,21 +129,6 @@ class customer(human):
             writer = csv.writer(file)
             writer.writerows(data)
 
-    @staticmethod
-    def changePassword(self,value):
-        data = []
-        with open('Customer.csv', 'r', newline='') as file:
-            reader = csv.reader(file)
-            data = list(reader)
-
-        for row in data:
-            if row[4] == self.email:
-                row[5] = value
-                break
-
-        with open('Customer.csv', 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows(data)
 
     def showinformation(self):
         data = []
@@ -161,3 +146,5 @@ class customer(human):
             with open('Customer.csv', 'w', newline='') as file:
                 writer = csv.writer(file)
                 print("The file doesn't exists!")
+
+    

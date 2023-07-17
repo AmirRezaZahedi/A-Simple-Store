@@ -113,7 +113,7 @@ class Goods:
             print("The file doesn't exist!")
             return None
         return goods_list
-    def showDetails(self,page):
+    def showDetails(self, page):
         page.Name.setText(str(self.name))
         page.Price.setText(str(self.price))
         page.Quantity.setText(str(self.quantity))

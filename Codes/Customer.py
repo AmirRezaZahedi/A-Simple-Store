@@ -21,12 +21,12 @@ class customer(human):
     all = []
     walletzBalance = AttributeDescriptor('walletzBalance')
 
-    def __init__(self, firstName, lastName, age, walletzBalance: float, email, password):
+    def __init__(self, firstName, lastName, age, walletzBalance: float, email, password, cart):
         super().__init__(firstName, lastName, age)
         self.walletzBalance = walletzBalance
         self.email = email
         self.password = password
-        self.cart = ['None']
+        self.cart = cart
     
     def showCustomerPage(self,Name,Lastname,Age,Gmail):
         #show information in Customer.ui page
@@ -42,7 +42,7 @@ class customer(human):
             for row in reader:
                 if row[4] == username and row[5] == password:
                     print("successfull . . .")
-                    return True, customer(row[0],row[1],row[2],float(row[3]),row[4],row[5])
+                    return True, customer(row[0],row[1],row[2],float(row[3]),row[4],row[5],row[6])
                 else:
                     print("Bad . . .")
                     return False, None
@@ -91,34 +91,41 @@ class customer(human):
                 writer.writerows(data)
 
 
-    def addProduct(self, name, value):
+    def addProduct(self, ProductDict):
+        ProductDatabase = os.path.join(os.getcwd(), "Databases", "Product.csv")
+        CustomerDatabase = os.path.join(os.getcwd(), "Databases", "Customer.csv")
+        flagCheck = True
         data = []
         try:
-            with open('Product.csv', 'r+', newline='') as file:
+            with open(ProductDatabase, 'r+',newline='') as file:
                 reader = csv.reader(file)
                 for row in reader:
-                    if(row[0] == name and row[2] != '0'):
-                        self.cart.append(row[0] + ":"+ str(value))
-                        
-                        with open('Customer.csv', 'r', newline='') as file:
-                            reader = csv.reader(file)
-                            data = list(reader)
+                    if(row[0] in ProductDict):
+                        if(ProductDict.get(row[0]) > int(row[2])):
+                            flagCheck = False
+                            return flagCheck
+                        else:
+                            list(self.cart).append(row[0] + ":"+ str(ProductDict.get(row[0])))
+                
+                
+                                        
+                with open(CustomerDatabase, 'r+', newline='') as file:
+                    reader = csv.reader(file)
+                    data = list(reader)
 
-                        for row in data:
-                            if row[4] == self.email:
-                                row[6] = self.cart
-                                break
+                    for row in data:
+                        if row[4] == self.email:
+                            row[6] = self.cart
+                            break
 
-                        with open('Customer.csv', 'w', newline='') as file:
-                            writer = csv.writer(file)
-                            writer.writerows(data)
-                            
-        except FileNotFoundError:
-                with open('Product.csv', 'w', newline='') as file:
+                with open(CustomerDatabase, 'w', newline='') as file:
                     writer = csv.writer(file)
-                    print("The file doesn't exists!")
-
-
+                    writer.writerows(data)
+                return flagCheck
+        except FileNotFoundError:
+            with open('Product.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                print("The file doesn't exists!")
 
     @staticmethod
     def changewalletzBalance(self,value):
@@ -135,23 +142,3 @@ class customer(human):
         with open('Customer.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
-
-
-    def showinformation(self):
-        data = []
-        try:
-            with open('Customer.csv', 'r+', newline='') as file:
-                reader = csv.reader(file)
-
-                for row in reader:
-                    if(row[4] == self.email):
-                        data.append([row[0], row[1], row[2], row[3], row[4], row[5]])
-                headers = ["Name", "Last Name", "Age", "Wallet Balance", "Email", "Password"]
-                table = tabulate(data, headers=headers, tablefmt="grid")
-                print(table)
-        except FileNotFoundError:
-            with open('Customer.csv', 'w', newline='') as file:
-                writer = csv.writer(file)
-                print("The file doesn't exists!")
-
-    

@@ -24,12 +24,12 @@ class mainWindowUI(QMainWindow):
     def checklogin(self):
         result, cus_tmp = customer.login(self.USERNAMEINPUT.text(),self.PASSWORDINPUT.text())
         if(result == True):
-            print("welcome!")
+            print("Welcome!")
             self.close()
             self.window = LoginWindowUI(cus_tmp)
             self.window.show()
         else:
-            print("Bad!")
+            print("Bad login!")
 
 
        
@@ -40,7 +40,7 @@ class LoginWindowUI(QMainWindow):
         self.customer = customer
         ui_file_path = os.path.join(os.getcwd(), "front", "Customer.ui")
         loadUi(ui_file_path, self)
-        self.setWindowTitle("Customer-page")
+        self.setWindowTitle("Customer Page")
         customer.showCustomerPage(self.Name,self.Lastname,self.Age,self.Gmail)
         self.OPENSTORE.clicked.connect(self.Openstore)
         self.CHANGEINFO.clicked.connect(self.pageChangeInfo)
@@ -61,8 +61,6 @@ class LoginWindowUI(QMainWindow):
         self.window = mainWindowUI()
 
 
-
-
 # ----| ChangeInfo |----
 class ChangeInfo(QDialog):
     def __init__(self, customer):
@@ -70,7 +68,7 @@ class ChangeInfo(QDialog):
         self.customer = customer
         ui_file_path = os.path.join(os.getcwd(), "front", "Changeinfo.ui")
         loadUi(ui_file_path, self)
-        self.setWindowTitle("Change information")
+        self.setWindowTitle("Change Information")
         self.setGeometry(100, 100, 889, 673)
         self.changeinfo.clicked.connect(self.Changeinfo)
     
@@ -87,13 +85,21 @@ class ProductWindow(QDialog):
         self.customer = customer
         ui_file_path = os.path.join(os.getcwd(), "front", "Showproduct.ui")
         loadUi(ui_file_path, self)
+        self.goodsList = []  # goods_list attribute
         self.setWindowTitle("Product Window")
         self.setGeometry(100, 100, 889, 673)
+        self.exit.clicked.connect(self.exitWindow)
+        self.AddTOCART.clicked.connect(self.AddToCart)
         ProductDatabase_file_path = os.path.join(os.getcwd(), "Databases", "Product.csv")
 
-        goodsList = Goods.loadGoodsFromcsv(ProductDatabase_file_path)
-        if goodsList is not None:
-            self.show_goods(goodsList)
+        self.goodsList = Goods.loadGoodsFromcsv(ProductDatabase_file_path)
+        if self.goodsList is not None:
+            self.show_goods(self.goodsList)
+
+    def exitWindow(self):
+        self.window = LoginWindowUI(self.customer)
+        self.window.show()
+        self.close()
 
     def show_goods(self, goods_list: List['Goods']):
         main_layout = QVBoxLayout(self.scrollAreaWidgetContents)
@@ -109,7 +115,7 @@ class ProductWindow(QDialog):
                 QLabel#productLabel {
                     background-color: #7D0F0F;
                     border-radius: 50%;
-                    color: #000;
+                    color: #fff;
                     font-size: 16px;
                     width: 300px;
                     height: 300px;
@@ -117,8 +123,12 @@ class ProductWindow(QDialog):
                     text-align: center;
                 }
             """)
-
-            details_button = QPushButton("نمایش جزییات")
+            spinbox = QSpinBox()
+            spinbox.setObjectName("spinBox_" + str(goods.name))  # Use a unique name for each spinbox
+            spinbox.setMinimum(0)  # Minimum value
+            spinbox.setValue(0)  # Set default value
+            spinbox.setMaximum(100)  # Maximum value
+            details_button = QPushButton("Show Details")
             details_button.setObjectName("detailsButton")
             details_button.setStyleSheet("""
                 QPushButton#detailsButton {
@@ -134,6 +144,7 @@ class ProductWindow(QDialog):
 
             layout = QVBoxLayout()
             layout.addWidget(product_widget)
+            layout.addWidget(spinbox)
             layout.addWidget(details_button)
 
             container_widget = QWidget()
@@ -145,14 +156,30 @@ class ProductWindow(QDialog):
         details_window = ShowDetailsProduct(goods)
         details_window.setWindowModality(Qt.ApplicationModal)
         details_window.show()
-        details_window.exec_()
+        details_window.exec()
+        
 
+    def AddToCart(self):
+        quantities = {} 
+
+        for goods in self.goodsList:
+            spinbox = self.findChild(QSpinBox, "spinBox_" + str(goods.name))
+            if spinbox and spinbox.value() > 0:
+                quantity = spinbox.value()
+                quantities[goods.name] = quantity
+        
+        check = self.customer.addProduct(quantities)
+        if(check):
+            print("everything is Ok!")
+            print("check cart")
+        else:
+            print("Baf!")
 class ShowDetailsProduct(QDialog):
     def __init__(self, goods):
         super().__init__()
         ui_file_path = os.path.join(os.getcwd(), "front", "Showdetailproduct.ui")
         loadUi(ui_file_path, self)
-        
+
         goods.showDetails(self)
 
 
@@ -163,5 +190,4 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()    
-    
+    main()

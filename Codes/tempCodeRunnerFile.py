@@ -1,2 +1,0 @@
-
-            for row in reader:

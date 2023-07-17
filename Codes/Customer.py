@@ -27,6 +27,13 @@ class customer(human):
         self.email = email
         self.password = password
         self.cart = ['None']
+    
+    def showCustomerPage(self,Name,Lastname,Age,Gmail):
+        #show information in Customer.ui page
+        Name.setText(self.firstName)
+        Lastname.setText(self.lastName)
+        Age.setText(self.age)
+        Gmail.setText(self.email)
 
     @staticmethod
     def login(username, password):

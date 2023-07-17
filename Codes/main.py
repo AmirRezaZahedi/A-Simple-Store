@@ -3,15 +3,14 @@ import csv
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
-import sqlite3
-from datetime import date
 from Customer import customer
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QWidget, QApplication
 from PyQt5.QtCore import Qt
-from PyQt5.uic import loadUi
-import csv
+from goods import Goods
+import sys
+from typing import List
+sys.path.append('../oop-python')
 
 class mainWindowUI(QMainWindow):
     def __init__(self):
@@ -38,97 +37,123 @@ class mainWindowUI(QMainWindow):
 class LoginWindowUI(QMainWindow):
     def __init__(self, customer):
         super().__init__()
+        self.customer = customer
         ui_file_path = os.path.join(os.getcwd(), "front", "Customer.ui")
         loadUi(ui_file_path, self)
         self.setWindowTitle("Customer-page")
-        self.Name.setText(customer.firstName)
-        self.Lastname.setText(customer.lastName)
-        self.Age.setText(customer.age)
-        self.Gmail.setText(customer.email)
-        self.OPENSTORE.clicked.connect(lambda: self.Openstore(customer))
-        self.CHANGEINFO.clicked.connect(lambda: self.pageChangeInfo(customer))
+        customer.showCustomerPage(self.Name,self.Lastname,self.Age,self.Gmail)
+        self.OPENSTORE.clicked.connect(self.Openstore)
+        self.CHANGEINFO.clicked.connect(self.pageChangeInfo)
+        self.BACKTOLOGIN.clicked.connect(self.BackToLogin)
 
-    def Openstore(self, customer):
+    def Openstore(self):
         self.close()
-        self.window = ProductWindow(customer)
+        self.window = ProductWindow(self.customer)
         self.window.show()
 
-    def pageChangeInfo(self, customer):
+    def pageChangeInfo(self):
         self.close()
-        self.window = ChangeInfo(customer)
+        self.window = ChangeInfo(self.customer)
         self.window.show()
 
+    def BackToLogin(self):
+        self.close()
+        self.window = mainWindowUI()
 
 
 
 
+# ----| ChangeInfo |----
 class ChangeInfo(QDialog):
     def __init__(self, customer):
         super().__init__()
+        self.customer = customer
         ui_file_path = os.path.join(os.getcwd(), "front", "Changeinfo.ui")
         loadUi(ui_file_path, self)
         self.setWindowTitle("Change information")
         self.setGeometry(100, 100, 889, 673)
-        self.changeinfo.clicked.connect(lambda: self.Changeinfo(customer))
+        self.changeinfo.clicked.connect(self.Changeinfo)
     
-    def Changeinfo(self, customer):
+    def Changeinfo(self):
         password = self.Cpassword.text()
         customer.change(self.Cname.text(), self.Clastname.text(), self.Cage.text(), password)
         self.close()
-        self.window = LoginWindowUI(customer)
+        self.window = LoginWindowUI(self.customer)
         self.window.show()
 
 class ProductWindow(QDialog):
     def __init__(self, customer):
         super().__init__()
-        loadUi("C:\\Users\\10\\Desktop\\oop-python\\front\\Showproduct.ui", self)
+        self.customer = customer
+        ui_file_path = os.path.join(os.getcwd(), "front", "Showproduct.ui")
+        loadUi(ui_file_path, self)
         self.setWindowTitle("Product Window")
         self.setGeometry(100, 100, 889, 673)
-        #self.setStyleSheet("background-color: rgba(41, 5, 5, 253);")
-        products = self.load_products_from_csv("C:\\Users\\10\\Desktop\\oop-python\\Databases\\Product.csv")
+        ProductDatabase_file_path = os.path.join(os.getcwd(), "Databases", "Product.csv")
 
+        goodsList = Goods.loadGoodsFromcsv(ProductDatabase_file_path)
+        if goodsList is not None:
+            self.show_goods(goodsList)
+
+    def show_goods(self, goods_list: List['Goods']):
         main_layout = QVBoxLayout(self.scrollAreaWidgetContents)
         main_layout.setAlignment(Qt.AlignTop)
         main_layout.setSpacing(10)
 
-        row_layout = None
-        for index, product in enumerate(products):
-            if index % 2 == 0:
-                row_layout = QHBoxLayout()
-                main_layout.addLayout(row_layout)
+        for goods in goods_list:
+            product_widget = QLabel(self.scrollAreaWidgetContents)
+            product_widget.setObjectName("productLabel")
+            product_widget.setText(str(goods))
+            product_widget.setAlignment(Qt.AlignCenter)
+            product_widget.setStyleSheet("""
+                QLabel#productLabel {
+                    background-color: #7D0F0F;
+                    border-radius: 50%;
+                    color: #000;
+                    font-size: 16px;
+                    width: 300px;
+                    height: 300px;
+                    padding: 30px;
+                    text-align: center;
+                }
+            """)
 
-            row_layout.addWidget(product)
+            details_button = QPushButton("نمایش جزییات")
+            details_button.setObjectName("detailsButton")
+            details_button.setStyleSheet("""
+                QPushButton#detailsButton {
+                    background-color: #4C9EEF;
+                    color: #fff;
+                    font-size: 14px;
+                    width: 120px;
+                    height: 30px;
+                    border-radius: 5px;
+                }
+            """)
+            details_button.clicked.connect(lambda checked, goods=goods: self.openDetailsWindow(goods))
 
-    def load_products_from_csv(self, filename):
-        products = []
-        with open(filename, 'r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if len(row) == 3:
-                    product_widget = QLabel(self.scrollAreaWidgetContents)
-                    product_widget.setObjectName("productLabel")
-                    product_widget.setText(f"Name: {row[0]}\nPrice: {row[1]}")
-                    product_widget.setAlignment(Qt.AlignCenter)
-                    product_widget.setStyleSheet("""
-                        QLabel#productLabel {
-                            background-color: #7D0F0F;
-                            border-radius: 50%;
-                            color: #000;
-                            font-size: 16px;
-                            width: 300px;
-                            height: 300px;
-                            padding: 30px;
-                            text-align: center;
-                        }
-                    """)
-                    products.append(product_widget)
+            layout = QVBoxLayout()
+            layout.addWidget(product_widget)
+            layout.addWidget(details_button)
 
-        return products
+            container_widget = QWidget()
+            container_widget.setLayout(layout)
 
+            main_layout.addWidget(container_widget)
 
+    def openDetailsWindow(self, goods: Goods):
+        details_window = ShowDetailsProduct(goods)
+        details_window.setWindowModality(Qt.ApplicationModal)
+        details_window.show()
+        details_window.exec_()
 
-
-
+class ShowDetailsProduct(QDialog):
+    def __init__(self, goods):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "Showdetailproduct.ui")
+        loadUi(ui_file_path, self)
+        
+        goods.showDetails(self)
 
 
 def main():

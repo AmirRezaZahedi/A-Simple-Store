@@ -14,15 +14,15 @@
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgba(41, 5, 5, 253);</string>
+   <string notr="true">background-color: rgba(39, 5, 4, 254);</string>
   </property>
   <widget class="QScrollArea" name="scrollArea">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>40</x>
      <y>20</y>
-     <width>671</width>
-     <height>281</height>
+     <width>811</width>
+     <height>551</height>
     </rect>
    </property>
    <property name="widgetResizable">
@@ -33,8 +33,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>669</width>
-      <height>279</height>
+      <width>809</width>
+      <height>549</height>
      </rect>
     </property>
    </widget>

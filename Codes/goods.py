@@ -2,6 +2,16 @@ from prettytable import PrettyTable
 from colorama import Fore, Style
 from termcolor import colored
 import csv
+import os
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.uic import loadUi
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QWidget, QApplication
+from PyQt5.QtCore import Qt
+from typing import List, Optional
+
+
 class AttributeDescriptor:
     def __init__(self, name):
         self.private_attr = f"_{name}"
@@ -23,41 +33,34 @@ class AttributeDescriptor:
             return value >= 0  # Check if the numeric value is greater than or equal to zero
         else:
             return False  # Invalid type
-        
-class Goods:
 
-    all = []
+class Goods:
     name = AttributeDescriptor("name")
     price = AttributeDescriptor("price")
     quantity = AttributeDescriptor("quantity")
 
     def __init__(self, Name: str, Price: float, Quantity=0):
-        # Run validations on the received arguments
-        assert Price >= 0, f"{Price} is wrong"
-        assert Quantity >= 0, f"{Quantity} is wrong"
+        self.name = Name
+        self.price = Price
+        self.quantity = Quantity
+
+        # Save information in file (csv)
         try:
-            existing_names = set()
             with open('Product.csv', 'r+', newline='') as file:
                 reader = csv.reader(file)
-                for row in reader:
-                    existing_names.add(row[0])
+                existing_names = set(row[0] for row in reader)
 
                 if Name in existing_names:
                     print("Product exists with this name!")
                 else:
-                    print(f"The product created\nname is : {Name}.")
-                    self.name = Name
-                    self.price = Price
-                    self.quantity = Quantity
-                    # Save information in file (csv)
+                    print(f"The product created\nname is: {Name}.")
                     data = [[self.name, str(self.price), str(self.quantity)]]
                     writer = csv.writer(file)
                     writer.writerows(data)
                     
         except FileNotFoundError:
             with open('Product.csv', 'w', newline='') as file:
-                writer = csv.writer(file)
-                print("The file doesn't exists!")
+                print("The file doesn't exist!")
 
     @staticmethod
     def changePrice(name, value):#function to change price
@@ -90,29 +93,33 @@ class Goods:
         with open('Product.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
-    @classmethod
-    def showGoods(cls):
-        try:
-            with open('Product.csv', 'r+', newline='') as file:
-                reader = csv.reader(file)
-                data = list(reader)
-                cls.all = data
-                
-                table = PrettyTable()
-                table.field_names = [colored("Item", "blue"), colored("Name", "blue"), colored("Price", "blue"), colored("Quality", "blue")]
-                table.title = colored("Goods List", "green")
-                table.align = "l"
-                
-                for i in range(len(cls.all)):
-                    table.add_row([f"Item {i+1}", cls.all[i][0], cls.all[i][1], cls.all[i][2]])
-                
-                print(Fore.YELLOW + table.get_string() + Style.RESET_ALL)
-                
-        except FileNotFoundError:
-            with open('Product.csv', 'w', newline='') as file:
-                writer = csv.writer(file)
-                print("The file doesn't exist!")
 
+
+    def __str__(self) -> str:
+        return f"Name: {self.name}\nPrice: {self.price}"
+
+    @staticmethod
+    def loadGoodsFromcsv(filename: str) -> Optional[List['Goods']]:
+        goods_list = []
+        try:
+            with open(filename, 'r', newline='') as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    if len(row) == 3:
+                        name, price, quantity = row
+                        goods = Goods(name, float(price), int(quantity))
+                        goods_list.append(goods)
+        except FileNotFoundError:
+            print("The file doesn't exist!")
+            return None
+        return goods_list
+    def showDetails(self,page):
+        page.Name.setText(str(self.name))
+        page.Price.setText(str(self.price))
+        page.Quantity.setText(str(self.quantity))
+
+    def __str__(self) -> str:
+        return f"Name: {self.name}\nPrice: {self.price}"
 
 
 

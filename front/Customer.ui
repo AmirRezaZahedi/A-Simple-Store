@@ -242,7 +242,7 @@ QPushButton:pressed {
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="BACKTOLOGIN">
        <property name="styleSheet">
         <string notr="true">QPushButton {
 	font: 12pt &quot;MV Boli&quot;;

@@ -10,7 +10,7 @@ from PyQt5.QtCore import Qt
 from goods import Goods
 import sys
 from typing import List
-sys.path.append('../oop-python')
+#sys.path.append('../oop-python')
 
 class mainWindowUI(QMainWindow):
     def __init__(self):
@@ -89,7 +89,7 @@ class ProductWindow(QDialog):
         self.setWindowTitle("Product Window")
         self.setGeometry(100, 100, 889, 673)
         self.exit.clicked.connect(self.exitWindow)
-        self.AddTOCART.clicked.connect(self.AddToCart)
+        self.ADDTOCART.clicked.connect(self.AddToCart)
         ProductDatabase_file_path = os.path.join(os.getcwd(), "Databases", "Product.csv")
 
         self.goodsList = Goods.loadGoodsFromcsv(ProductDatabase_file_path)
@@ -170,10 +170,41 @@ class ProductWindow(QDialog):
         
         check = self.customer.addProduct(quantities)
         if(check):
-            print("everything is Ok!")
-            print("check cart")
+
+            msgBox = CustomMessageBox()
+            msgBox.exec_()
+
         else:
-            print("Baf!")
+            print("Bad!")
+
+class CustomMessageBox(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Custom Message Box")
+        self.setStyleSheet("""
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+        """)
+
+        layout = QVBoxLayout(self)
+        label = QLabel("محصول با موفقیت به سبد خرید اضافه شد")
+        label.setStyleSheet("""
+            font-size: 20px;
+            font-weight: bold;
+            color: #333333;
+        """)
+        layout.addWidget(label)
+
+        button = QPushButton("باشه")
+        button.setStyleSheet("""
+            background-color: #4C9EEF;
+            color: #FFFFFF;
+            font-size: 16px;
+            border-radius: 5px;
+        """)
+        button.clicked.connect(self.accept)
+        layout.addWidget(button)
+
 class ShowDetailsProduct(QDialog):
     def __init__(self, goods):
         super().__init__()

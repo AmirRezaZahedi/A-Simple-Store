@@ -50,7 +50,7 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QPushButton" name="AddTOCART">
+     <widget class="QPushButton" name="ADDTOCART">
       <property name="styleSheet">
        <string notr="true">font: 87 12pt &quot;Montserrat Black&quot;;
 background-color: rgb(153, 33, 200);</string>

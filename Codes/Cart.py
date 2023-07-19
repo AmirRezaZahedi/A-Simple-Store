@@ -22,7 +22,7 @@ class MyCart:
                             return flagCheck
                         else:
                             CartProduct.update({row[0] : ProductDict.get(row[0])})
-                            
+
                 tmp = eval(self.cart)#list of customer's cart
                 for i in range(1,len(tmp)):
                     SplitItem = tmp[i].split(":")

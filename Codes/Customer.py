@@ -1,5 +1,4 @@
 import csv
-from Human import human
 from goods import Goods
 import os
 from Cart import MyCart
@@ -16,17 +15,20 @@ class AttributeDescriptor:
         instance.__dict__[self.name] = value
 
 
-class customer(human, MyCart):
+class customer(MyCart):
 
     all = []
     walletzBalance = AttributeDescriptor('walletzBalance')
 
     def __init__(self, firstName, lastName, age, walletzBalance: float, email, password, cart):
-        super().__init__(firstName, lastName, age)
         super().__init__(cart)
+        self.firstName = firstName
+        self.lastName = lastName
+        self.age = age
         self.walletzBalance = walletzBalance
         self.email = email
         self.password = password
+        
     
     def showCustomerPage(self,Name,Lastname,Age,Gmail):
         #show information in Customer.ui page
@@ -42,11 +44,18 @@ class customer(human, MyCart):
             for row in reader:
                 if row[4] == username and row[5] == password:
                     print("successfull . . .")
-                    return True, customer(row[0],row[1],row[2],float(row[3]),row[4],row[5],row[6])
+                    return True, customer(row[0],row[1],(row[2]),float(row[3]),row[4],row[5],row[6])
                 else:
                     print("Bad . . .")
                     return False, None
                 
+    def ChangeCustom(self, Cname, Clastname, Cage,Cpassword):
+
+        Cname.setText(self.firstName)
+        Clastname.setText(self.lastName)
+        Cage.setText(self.age)
+        Cpassword.setText(self.password)
+
     def change(self,firstName, lastName, age, password):
         data = []
         current_directory = os.getcwd()
@@ -85,7 +94,7 @@ class customer(human, MyCart):
                     break
             
             if(tmp == 0):
-                cus_tmp = customer(firstName, lastName, age, float(walletzBalance), email, password)
+                cus_tmp = customer(firstName, lastName, age, float(walletzBalance), email, password,"['None']")
                 data = [[firstName, lastName, age, float(walletzBalance), email, password,cus_tmp.cart]]
                 writer = csv.writer(file)
                 writer.writerows(data)

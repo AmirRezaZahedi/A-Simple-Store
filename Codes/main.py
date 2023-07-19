@@ -10,42 +10,60 @@ from PyQt5.QtCore import Qt
 from goods import Goods
 import sys
 from typing import List
-#sys.path.append('../oop-python')
+from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QAbstractItemView
 
-class mainWindowUI(QMainWindow):
+class mainWindowUI(QDialog):
+
+    def __init__(self):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "Mainwindow2.ui")
+        loadUi(ui_file_path, self)
+        self.REGISTER.clicked.connect(self.checklogin)
+        self.show()
+
+    def checklogin(self):
+        #self.close()
+        #self.window = 
+        #result, cus_tmp = customer.login(self.USERNAMEINPUT.text(),self.PASSWORDINPUT.text())
+        if(True):
+            print("Welcome!")
+            self.close()
+            self.window = LoginwindowUI2()
+            self.window.show()
+
+
+class LoginwindowUI2(QDialog):
     def __init__(self):
         super().__init__()
         ui_file_path = os.path.join(os.getcwd(), "front", "Login.ui")
         loadUi(ui_file_path, self)
-        self.show()
-        self.LOGINBUTTONCUS.clicked.connect(self.checklogin)
-        
+        self.login_btn.clicked.connect(self.checklogin)
 
     def checklogin(self):
-        result, cus_tmp = customer.login(self.USERNAMEINPUT.text(),self.PASSWORDINPUT.text())
+        result, cus_tmp = customer.login(self.email_input.text(), self.pass_input.text())
         if(result == True):
             print("Welcome!")
             self.close()
-            self.window = LoginWindowUI(cus_tmp)
+            self.window = AfterLogin(cus_tmp)
             self.window.show()
         else:
             print("Bad login!")
 
-
-       
-# ----| LoginWindowUI |----
-class LoginWindowUI(QMainWindow):
+# ----| AfterLogin |----
+class AfterLogin(QDialog):
     def __init__(self, customer):
         super().__init__()
         self.customer = customer
-        ui_file_path = os.path.join(os.getcwd(), "front", "Customer.ui")
+        ui_file_path = os.path.join(os.getcwd(), "front", "Afterlogin.ui")
         loadUi(ui_file_path, self)
         self.setWindowTitle("Customer Page")
-        customer.showCustomerPage(self.Name,self.Lastname,self.Age,self.Gmail)
+        
         self.OPENSTORE.clicked.connect(self.Openstore)
         self.CHANGEINFO.clicked.connect(self.pageChangeInfo)
         self.BACKTOLOGIN.clicked.connect(self.BackToLogin)
-
+        self.COMPLETEBUY.clicked.connect(self.CompleteBuy)
+        self.WELCOME.setText(self.customer.firstName + "Welcome")
+        
     def Openstore(self):
         self.close()
         self.window = ProductWindow(self.customer)
@@ -60,7 +78,10 @@ class LoginWindowUI(QMainWindow):
         self.close()
         self.window = mainWindowUI()
 
-
+    def CompleteBuy(self):
+        self.close()
+        self.window = ShowFactor(self.customer)
+        self.window.show()
 # ----| ChangeInfo |----
 class ChangeInfo(QDialog):
     def __init__(self, customer):
@@ -70,13 +91,14 @@ class ChangeInfo(QDialog):
         loadUi(ui_file_path, self)
         self.setWindowTitle("Change Information")
         self.setGeometry(100, 100, 889, 673)
-        self.changeinfo.clicked.connect(self.Changeinfo)
-    
+        self.CHANGEINFO.clicked.connect(self.Changeinfo)
+        self.customer.ChangeCustom(self.Cname, self.Clastname, self.Cage, self.Cpassword)
+
     def Changeinfo(self):
-        password = self.Cpassword.text()
-        customer.change(self.Cname.text(), self.Clastname.text(), self.Cage.text(), password)
+
+        self.customer.change(self.Cname.text(), self.Clastname.text(), self.Cage.text(), self.Cpassword.text())
         self.close()
-        self.window = LoginWindowUI(self.customer)
+        self.window = AfterLogin(self.customer)
         self.window.show()
 
 class ProductWindow(QDialog):
@@ -90,30 +112,32 @@ class ProductWindow(QDialog):
         self.setGeometry(100, 100, 889, 673)
         self.exit.clicked.connect(self.exitWindow)
         self.ADDTOCART.clicked.connect(self.AddToCart)
+        self.setFixedSize(1024, 900)
         ProductDatabase_file_path = os.path.join(os.getcwd(), "Databases", "Product.csv")
 
         self.goodsList = Goods.loadGoodsFromcsv(ProductDatabase_file_path)
         if self.goodsList is not None:
             self.show_goods(self.goodsList)
 
-    def exitWindow(self):
-        self.window = LoginWindowUI(self.customer)
-        self.window.show()
-        self.close()
+    
 
     def show_goods(self, goods_list: List['Goods']):
-        main_layout = QVBoxLayout(self.scrollAreaWidgetContents)
+        main_layout = QGridLayout(self.scrollAreaWidgetContents)
         main_layout.setAlignment(Qt.AlignTop)
-        main_layout.setSpacing(10)
+        main_layout.setHorizontalSpacing(20)
+        main_layout.setVerticalSpacing(20)
 
-        for goods in goods_list:
+        # Set the background color of the button
+        button_background_color = "#df2569"
+
+        for index, goods in enumerate(goods_list):
             product_widget = QLabel(self.scrollAreaWidgetContents)
-            product_widget.setObjectName("productLabel")
-            product_widget.setText(str(goods))
+            product_widget.setObjectName(f"productLabel_{index}")
+            product_widget.setText(f"Name: {goods.name}\nPrice: {goods.price}")
             product_widget.setAlignment(Qt.AlignCenter)
-            product_widget.setStyleSheet("""
-                QLabel#productLabel {
-                    background-color: #7D0F0F;
+            product_widget.setStyleSheet(f"""
+                QLabel {{
+                    background-color: #73628a;
                     border-radius: 50%;
                     color: #fff;
                     font-size: 16px;
@@ -121,36 +145,43 @@ class ProductWindow(QDialog):
                     height: 300px;
                     padding: 30px;
                     text-align: center;
-                }
+                }}
             """)
+
             spinbox = QSpinBox()
             spinbox.setObjectName("spinBox_" + str(goods.name))  # Use a unique name for each spinbox
-            spinbox.setMinimum(0)  # Minimum value
-            spinbox.setValue(0)  # Set default value
-            spinbox.setMaximum(100)  # Maximum value
+            spinbox.setMinimum(0)
+            spinbox.setValue(0)
+            spinbox.setMaximum(100)
+
             details_button = QPushButton("Show Details")
-            details_button.setObjectName("detailsButton")
-            details_button.setStyleSheet("""
-                QPushButton#detailsButton {
-                    background-color: #4C9EEF;
+            details_button.setObjectName(f"detailsButton_{index}")
+            details_button.setStyleSheet(f"""
+                QPushButton {{
+                    font-size: 11.5px;
+                    width: 118px;
+                    height: 28px;
+                    border-radius: 10%;
+                    background-color: {button_background_color};
                     color: #fff;
-                    font-size: 14px;
-                    width: 120px;
-                    height: 30px;
-                    border-radius: 5px;
-                }
+                    font: 15pt "IRANSans";
+                }}
             """)
             details_button.clicked.connect(lambda checked, goods=goods: self.openDetailsWindow(goods))
 
+            container_widget = QWidget()
             layout = QVBoxLayout()
             layout.addWidget(product_widget)
             layout.addWidget(spinbox)
             layout.addWidget(details_button)
-
-            container_widget = QWidget()
             container_widget.setLayout(layout)
 
-            main_layout.addWidget(container_widget)
+            # Calculate the row and column based on the index to create the horizontal layout
+            row = index // 3
+            column = index % 3
+            main_layout.addWidget(container_widget, row, column)
+
+        self.scrollAreaWidgetContents.setLayout(main_layout)
 
     def openDetailsWindow(self, goods: Goods):
         details_window = ShowDetailsProduct(goods)
@@ -158,7 +189,11 @@ class ProductWindow(QDialog):
         details_window.show()
         details_window.exec()
         
-
+    def exitWindow(self):
+        self.window = AfterLogin(self.customer)
+        self.window.show()
+        self.close()
+    
     def AddToCart(self):
         quantities = {} 
 
@@ -168,14 +203,18 @@ class ProductWindow(QDialog):
                 quantity = spinbox.value()
                 quantities[goods.name] = quantity
         
+        if not quantities:
+            print("No products selected!")
+            return
         check = self.customer.addProduct(quantities)
+        
         if(check):
 
             msgBox = CustomMessageBox()
             msgBox.exec_()
 
-        else:
-            print("Bad!")
+
+            
 
 class CustomMessageBox(QDialog):
     def __init__(self, parent=None):
@@ -213,6 +252,55 @@ class ShowDetailsProduct(QDialog):
 
         goods.showDetails(self)
 
+
+class ShowFactor(QDialog):
+    def __init__(self, customer):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "Completebuy.ui")
+        loadUi(ui_file_path, self)
+        self.customer = customer
+        Factor = eval(self.customer.cart)
+
+        # Create a table with two columns (product name and quantity)        
+        self.tableWidget.setColumnCount(2)
+        self.tableWidget.setHorizontalHeaderLabels(["نام محصول", "تعداد"])
+
+        # Adjust the width of the columns
+        header = self.tableWidget.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+
+        # Choose colors
+        color1 = QColor(230, 255, 255)  # آبی روشن
+        color2 = QColor(255, 245, 230)  # نارنجی روشن
+        brush1 = QBrush(color1)
+        brush2 = QBrush(color2)
+
+        for i in range(1, len(Factor)):
+            product_name, quantity = Factor[i].split(':')
+            row_position = self.tableWidget.rowCount()
+            self.tableWidget.insertRow(row_position)
+
+            # Add information to the table
+            self.tableWidget.setItem(row_position, 0, QTableWidgetItem(product_name))
+            self.tableWidget.setItem(row_position, 1, QTableWidgetItem(quantity))
+
+            # Set background color for rows
+            if i % 2 == 0:
+                for j in range(2):
+                    self.tableWidget.item(row_position, j).setBackground(brush1)
+            else:
+                for j in range(2):
+                    self.tableWidget.item(row_position, j).setBackground(brush2)
+
+            # Set color for cells
+            for j in range(2):
+                self.tableWidget.item(row_position, j).setTextAlignment(Qt.AlignCenter)
+                font = self.tableWidget.item(row_position, j).font()
+                font.setBold(True)
+                self.tableWidget.item(row_position, j).setFont(font)
+            
+        
 
 def main():
     import sys

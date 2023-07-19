@@ -6,24 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1042</width>
-    <height>826</height>
+    <width>996</width>
+    <height>727</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgba(39, 5, 4, 254);</string>
+   <string notr="true">background-color: #99EDC3</string>
   </property>
   <widget class="QScrollArea" name="scrollArea">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>40</y>
+     <x>100</x>
+     <y>20</y>
      <width>811</width>
      <height>551</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(239, 255, 57);</string>
    </property>
    <property name="widgetResizable">
     <bool>true</bool>
@@ -42,8 +45,8 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>610</y>
+     <x>370</x>
+     <y>590</y>
      <width>271</width>
      <height>111</height>
     </rect>
@@ -53,7 +56,8 @@
      <widget class="QPushButton" name="ADDTOCART">
       <property name="styleSheet">
        <string notr="true">font: 87 12pt &quot;Montserrat Black&quot;;
-background-color: rgb(153, 33, 200);</string>
+background-color: #120A8F;
+color:white;</string>
       </property>
       <property name="text">
        <string>add to cart</string>
@@ -63,9 +67,9 @@ background-color: rgb(153, 33, 200);</string>
     <item>
      <widget class="QPushButton" name="exit">
       <property name="styleSheet">
-       <string notr="true">font: 63 12pt &quot;Raleway SemiBold&quot;;
-background-color: rgb(0, 0, 0);
-color: rgb(255, 255, 255);</string>
+       <string notr="true">background-color: rgb(0, 0, 0);
+font: 87 12pt &quot;Montserrat Black&quot;;
+color:white;</string>
       </property>
       <property name="text">
        <string>exit</string>

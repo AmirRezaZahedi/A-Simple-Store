@@ -38,6 +38,7 @@ class LoginwindowUI2(QDialog):
         ui_file_path = os.path.join(os.getcwd(), "front", "Login.ui")
         loadUi(ui_file_path, self)
         self.login_btn.clicked.connect(self.checklogin)
+        self.ADMIN.clicked.connect(self.loginAdmin)
 
     def checklogin(self):
         result, cus_tmp = customer.login(self.email_input.text(), self.pass_input.text())
@@ -49,6 +50,10 @@ class LoginwindowUI2(QDialog):
         else:
             print("Bad login!")
 
+    def loginAdmin(self):
+       self.close()
+       self.window =  LoginAdmin()
+       self.window.show()
 # ----| AfterLogin |----
 class AfterLogin(QDialog):
     def __init__(self, customer):
@@ -101,6 +106,22 @@ class ChangeInfo(QDialog):
         self.window = AfterLogin(self.customer)
         self.window.show()
 
+class LoginAdmin(QDialog):
+    def __init__(self):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "Login_Admin.ui")
+        loadUi(ui_file_path, self)
+        self.login_btn.clicked.connect(self.logIn)
+        self.name = "admin"
+
+    def logIn(self):
+        if(self.email_input.text() == 'admin' and self.pass_input.text() == 'admin'):
+            self.close()
+            self.window = AdminPage()
+            self.window.show()
+        else:
+            print("Bad")
+    
 class ProductWindow(QDialog):
     def __init__(self, customer):
         super().__init__()
@@ -261,46 +282,103 @@ class ShowFactor(QDialog):
         self.customer = customer
         Factor = eval(self.customer.cart)
 
-        # Create a table with two columns (product name and quantity)        
-        self.tableWidget.setColumnCount(2)
-        self.tableWidget.setHorizontalHeaderLabels(["نام محصول", "تعداد"])
-
+        # Create a table with three columns (product name, quantity, and price)        
+        self.tableWidget.setColumnCount(3)
+        self.tableWidget.setHorizontalHeaderLabels(["نام محصول", "تعداد", "قیمت"])
+        self.DELETEALL.clicked.connect(self.DeleteCart)
         # Adjust the width of the columns
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
 
         # Choose colors
         color1 = QColor(230, 255, 255)  # آبی روشن
         color2 = QColor(255, 245, 230)  # نارنجی روشن
         brush1 = QBrush(color1)
         brush2 = QBrush(color2)
+        total = 0
 
         for i in range(1, len(Factor)):
             product_name, quantity = Factor[i].split(':')
+            price = Goods.getPrice(product_name)
+            total = total + float(price) * int(quantity)
             row_position = self.tableWidget.rowCount()
             self.tableWidget.insertRow(row_position)
 
             # Add information to the table
             self.tableWidget.setItem(row_position, 0, QTableWidgetItem(product_name))
             self.tableWidget.setItem(row_position, 1, QTableWidgetItem(quantity))
+            self.tableWidget.setItem(row_position, 2, QTableWidgetItem(str(price)))
 
             # Set background color for rows
             if i % 2 == 0:
-                for j in range(2):
+                for j in range(3):
                     self.tableWidget.item(row_position, j).setBackground(brush1)
             else:
-                for j in range(2):
+                for j in range(3):
                     self.tableWidget.item(row_position, j).setBackground(brush2)
 
             # Set color for cells
-            for j in range(2):
+            for j in range(3):
                 self.tableWidget.item(row_position, j).setTextAlignment(Qt.AlignCenter)
                 font = self.tableWidget.item(row_position, j).font()
                 font.setBold(True)
                 self.tableWidget.item(row_position, j).setFont(font)
-            
+        # Create and set the label for total
+        total_label = QLabel(f"مجموع: {total}")
+        total_label.setStyleSheet("""
+            font-size: 16px;
+            color: #333333;
+            font-weight: bold;
+        """)
+
+        # Add total label to the layout
+        layout = self.verticalLayout
+        layout.addWidget(total_label)
         
+
+    def DeleteCart(self):
+            if(len(eval(self.customer.cart)) != 1):
+                self.customer.deletecart()
+                self.close()
+                self.window = ShowFactor(self.customer)
+                self.window.show()
+            else:
+                print("Empty")
+
+    
+class AdminPage(QDialog):
+    def __init__(self):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "AdminPage.ui")
+        loadUi(ui_file_path, self)
+        self.ADD.clicked.connect(self.AddProduct)
+        #self.SelectImageButton.clicked.connect(self.open_image_dialog)
+    def AddProduct(self):
+        print("Add product clicked!")
+
+
+class AddProductByAdmin(QDialog):
+    def __init__(self):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "AddProduct.ui.ui")
+        loadUi(ui_file_path, self)
+        self.ADD.clicked.connect(self.AddButtom)
+        self.SelectImageButton.clicked.connect(self.OpenImageDialog)
+
+    def OpenImageDialog(self):
+        options = QFileDialog.Options()
+        FilePath, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", 
+                                                   "Image Files (*.png *.jpg *.bmp *.jpeg);;All Files (*)", 
+                                                   options=options)
+        
+        if FilePath:
+            self.selected_image_label.setText(FilePath)
+    
+    def AddButtom():
+        print("clicked add!")
+    
 
 def main():
     import sys

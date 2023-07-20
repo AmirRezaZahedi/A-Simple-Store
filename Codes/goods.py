@@ -118,6 +118,20 @@ class Goods:
         page.Price.setText(str(self.price))
         page.Quantity.setText(str(self.quantity))
 
+    @staticmethod
+    def getPrice(name):
+        
+        filePath = os.path.join(os.getcwd(), "Databases", "Product.csv")
+        try:
+            with open(filePath, 'r', newline='') as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    if name == row[0]:
+                        return row[1]
+        except FileNotFoundError:
+            print("The file doesn't exist!")
+            return None
+
     def __str__(self) -> str:
         return f"Name: {self.name}\nPrice: {self.price}"
 

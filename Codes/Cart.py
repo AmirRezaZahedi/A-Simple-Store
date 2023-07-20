@@ -80,3 +80,18 @@ class MyCart:
             writer.writerows(data)
         
         return flagCheck
+    
+    def deletecart(self):
+        self.cart = "['None']"
+        CustomerDatabase = os.path.join(os.getcwd(), "Databases", "Customer.csv")
+        with open(CustomerDatabase, 'r+', newline='') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+            for row in data:
+                if row[4] == self.email:
+                    row[6] = self.cart
+                    break
+        
+        with open(CustomerDatabase, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)

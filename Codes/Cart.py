@@ -38,7 +38,7 @@ class MyCart:
                 with open(CustomerDatabase, 'r+', newline='') as file:
                     reader = csv.reader(file)
                     data = list(reader)
-                    self.cart = tmp
+                    self.cart = str(tmp)
                     for row in data:
                         if row[4] == self.email:
                             row[6] = self.cart

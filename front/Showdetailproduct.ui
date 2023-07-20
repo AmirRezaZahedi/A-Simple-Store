@@ -174,23 +174,17 @@ border-radius:10%;</string>
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="label_7">
+  <widget class="QLabel" name="IMAGE">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>150</y>
-     <width>231</width>
-     <height>181</height>
+     <x>80</x>
+     <y>160</y>
+     <width>181</width>
+     <height>161</height>
     </rect>
    </property>
    <property name="text">
     <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap>../images/delivery-trucks-road-out-smartphone-carry-goods-customer-home-with-location-pointer-bubble-chat-message-ecommerce-concept-blue-background-3d-illustration.jpg</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
    </property>
   </widget>
  </widget>

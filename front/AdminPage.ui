@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
-    <height>681</height>
+    <width>882</width>
+    <height>668</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="ADD">
+  <widget class="QLabel" name="ADDPRODUCT">
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -54,7 +54,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="edit">
    <property name="geometry">
     <rect>
      <x>130</x>

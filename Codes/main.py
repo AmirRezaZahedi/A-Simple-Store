@@ -11,7 +11,8 @@ from goods import Goods
 import sys
 from typing import List
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QAbstractItemView
-
+from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, QtGui
 class mainWindowUI(QDialog):
 
     def __init__(self):
@@ -353,17 +354,27 @@ class AdminPage(QDialog):
         super().__init__()
         ui_file_path = os.path.join(os.getcwd(), "front", "AdminPage.ui")
         loadUi(ui_file_path, self)
-        self.ADD.clicked.connect(self.AddProduct)
+        self.ADDPRODUCT.mousePressEvent = self.AddProduct
+        self.edit.mousePressEvent = self.EditProduct
         #self.SelectImageButton.clicked.connect(self.open_image_dialog)
-    def AddProduct(self):
+    def AddProduct(self, event):
         print("Add product clicked!")
+        self.close()
+        self.window = AddProductByAdmin()
+        self.window.show()
 
+    def EditProduct(self, event):
+        print("Edit clicked")
+        self.close()
+        self.window = EditProductByAdmin()
+        self.window.show()
 
 class AddProductByAdmin(QDialog):
     def __init__(self):
         super().__init__()
-        ui_file_path = os.path.join(os.getcwd(), "front", "AddProduct.ui.ui")
+        ui_file_path = os.path.join(os.getcwd(), "front", "AddProduct.ui")
         loadUi(ui_file_path, self)
+
         self.ADD.clicked.connect(self.AddButtom)
         self.SelectImageButton.clicked.connect(self.OpenImageDialog)
 
@@ -375,11 +386,131 @@ class AddProductByAdmin(QDialog):
         
         if FilePath:
             self.selected_image_label.setText(FilePath)
-    
-    def AddButtom():
-        print("clicked add!")
-    
 
+    def AddButtom(self):
+        print("clicked add...!")
+        print(self.Name.text(), self.Price.text(), self.Count.text())
+        if (self.Name.text() == "") or (self.Price.text() == "") or (self.Count.text() == "") or (self.selected_image_label.text()==""):
+            print("Bad..!")
+
+        else:
+            Goods.CreateProduct(self.Name.text(), self.Price.text(), self.Count.text(), self.selected_image_label.text())
+        
+class EditProductByAdmin(QDialog):
+    def __init__(self):
+        super().__init__()
+        ui_file_path = os.path.join(os.getcwd(), "front", "Editproduct.ui")
+        Database_file_path = os.path.join(os.getcwd(), "Databases", "Product.csv")
+        uic.loadUi(ui_file_path, self)
+
+        self.goods_widgets = {}  # Dictionary to store references to QLineEdit widgets for each Goods object
+        self.goodsList = Goods.loadGoodsFromcsv(Database_file_path)
+        if self.goodsList is not None:
+            self.show_goods(self.goodsList)
+
+    def show_goods(self, goods_list: List['Goods']):
+        scroll_layout = QtWidgets.QVBoxLayout()
+        for goods in goods_list:
+            product_widget = QtWidgets.QWidget()
+            product_layout = QtWidgets.QGridLayout()
+
+            # برچسب‌ها
+            name_label = QtWidgets.QLabel("Name:")
+            price_label = QtWidgets.QLabel("Price:")
+            quantity_label = QtWidgets.QLabel("Quantity:")
+
+            # فونت‌ها
+            font = QFont()
+            font.setPointSize(12)  # اندازه فونت را افزایش می‌دهیم
+            font.setBold(True)    # فونت را برجسته می‌کنیم
+            name_label.setFont(font)
+            price_label.setFont(font)
+            quantity_label.setFont(font)
+
+            # ویرایش فونت دکمه ویرایش
+            edit_button = QtWidgets.QPushButton("Edit")
+            edit_button.setStyleSheet("background-color: #4CAF50; color: white; border: 2px solid #4CAF50; border-radius: 8px;")
+            edit_button.setFont(font)
+
+            edit_button.clicked.connect(lambda checked, goods=goods: self.edit_product(goods))
+
+            # ویرایش فونت دکمه "ویرایش عکس"
+            choose_image_button = QtWidgets.QPushButton("Choose Image")
+            choose_image_button.setFont(font)
+            choose_image_button.clicked.connect(lambda checked, goods=goods: self.choose_image(goods))
+
+            # ایجاد ویرایش‌گرها
+            product_name_edit = QtWidgets.QLineEdit(goods.name)
+            product_price_edit = QtWidgets.QLineEdit(str(goods.price))
+            product_quantity_edit = QtWidgets.QLineEdit(str(goods.quantity))
+            previous_image_path_edit = QtWidgets.QLineEdit(goods.path)
+            previous_image_path_edit.setReadOnly(True)
+
+            # اضافه کردن ویرایش‌گرها به دیکشنری با استفاده از نام محصول به عنوان کلید
+            self.goods_widgets[goods.name] = {
+                'product_name_edit': product_name_edit,
+                'product_price_edit': product_price_edit,
+                'product_quantity_edit': product_quantity_edit,
+                'previous_image_path_edit': previous_image_path_edit
+            }
+
+            # چینش ویجت‌ها و برچسب‌ها در قالب
+            product_layout.addWidget(name_label, 0, 0)
+            product_layout.addWidget(product_name_edit, 0, 1)
+            product_layout.addWidget(price_label, 1, 0)
+            product_layout.addWidget(product_price_edit, 1, 1)
+            product_layout.addWidget(quantity_label, 2, 0)
+            product_layout.addWidget(product_quantity_edit, 2, 1)
+            product_layout.addWidget(previous_image_path_edit, 3, 0, 1, 2)  # دکمه از سطر 3، ستون 0 شروع شود و به اندازه 1 سطر و 2 ستون ادامه یابد
+            # دکمه از سطر 4، ستون 0 شروع شود و به اندازه 1 سطر و 2 ستون ادامه یابد
+            product_layout.addWidget(choose_image_button, 4, 0, 1, 2)  # دکمه از سطر 5، ستون 0 شروع شود و به اندازه 1 سطر و 2 ستون ادامه یابد
+            product_layout.addWidget(edit_button, 5, 0, 1, 2)
+
+            product_widget.setLayout(product_layout)
+            scroll_layout.addWidget(product_widget)
+
+        self.scrollAreaWidgetContents.setLayout(scroll_layout)
+
+
+
+    def choose_image(self, goods: Goods):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly  # انتخاب فایل به صورت تنها خواندنی (readonly)
+        file_name, _ = QFileDialog.getOpenFileName(self, "Choose Image", "", "Image Files (*.png *.jpg *.bmp);;All Files (*)", options=options)
+        if file_name:
+            goods.changePath(file_name)
+            previous_image_path_edit = self.findChild(QtWidgets.QLineEdit, "previous_image_path_edit_{}".format(goods.name))
+            if previous_image_path_edit:
+                self.close()
+                self.close()
+                self.window = EditProductByAdmin()
+                self.window.show()
+
+    def edit_product(self, goods: Goods):
+        # Get the edited values from the QLineEdit widgets using the dictionary
+        
+        edited_name = self.goods_widgets[goods.name]['product_name_edit'].text()
+        edited_price = float(self.goods_widgets[goods.name]['product_price_edit'].text())
+        edited_quantity = int(self.goods_widgets[goods.name]['product_quantity_edit'].text())
+
+        # Update the Goods object with the edited values
+        
+        goods.changeName(edited_name)
+        goods.name = edited_name
+
+        
+        goods.changePrice(edited_price)
+        goods.price = edited_price
+
+        
+        goods.changeQuantity(edited_quantity)
+
+        goods.quantity = edited_quantity
+
+        self.close()
+        self.window = EditProductByAdmin()
+        self.window.show()
+        
 def main():
     import sys
     app = QApplication(sys.argv)

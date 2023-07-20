@@ -35,18 +35,51 @@ class AttributeDescriptor:
             return False  # Invalid type
 
 class Goods:
-    name = AttributeDescriptor("name")
-    price = AttributeDescriptor("price")
-    quantity = AttributeDescriptor("quantity")
+    def __init__(self, name: str, price: float, path,  quantity=0):
+        assert int(price) > 0, f"{price} is negative"
+        assert len(name) > 2, f"len of {name} is smaller than 2"
+        self.__name = name
+        self.__price = price
+        self.__quantity = quantity
+        self.path = path
 
-    def __init__(self, Name: str, Price: float, Quantity=0):
-        self.name = Name
-        self.price = Price
-        self.quantity = Quantity
+    @property
+    def name(self):
+        return self.__name
 
-        # Save information in file (csv)
-        try:
-            with open('Product.csv', 'r+', newline='') as file:
+    @name.setter
+    def name(self, value):
+        self.__name = value
+
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self, value):
+        self.__price = value
+
+    @property
+    def quantity(self):
+        return self.__quantity
+
+    @quantity.setter
+    def quantity(self, value):
+        self.__quantity = value
+
+    @property
+    def path(self):
+        return self.__path
+    @path.setter
+    def path(self, value):
+        self.__path = value
+
+    @staticmethod
+    def CreateProduct(Name, Price, Count, path):
+        product = Goods(Name, Price, path, Count)
+        ui_file_path = os.path.join(os.getcwd(), "Databases", "Product.csv")
+        
+        with open(ui_file_path, 'r+', newline='') as file:
                 reader = csv.reader(file)
                 existing_names = set(row[0] for row in reader)
 
@@ -54,43 +87,80 @@ class Goods:
                     print("Product exists with this name!")
                 else:
                     print(f"The product created\nname is: {Name}.")
-                    data = [[self.name, str(self.price), str(self.quantity)]]
+                    data = [[product.name, str(product.price), str(product.quantity), product.path]]
                     writer = csv.writer(file)
                     writer.writerows(data)
-                    
-        except FileNotFoundError:
-            with open('Product.csv', 'w', newline='') as file:
-                print("The file doesn't exist!")
 
-    @staticmethod
-    def changePrice(name, value):#function to change price
+
+    def changePath(self, value):
+        DatabasePath = os.path.join(os.getcwd(), "Databases", "Product.csv")
         data = []
-        with open('Product.csv', 'r', newline='') as file:
+        with open(DatabasePath, 'r', newline='') as file:
             reader = csv.reader(file)
             data = list(reader)
-
+            
         for row in data:
-            if row[0] == name:
-                row[1] = str(value)
+            if row[0] == self.name:
+                row[3] = str(value)
                 break
 
-        with open('Product.csv', 'w', newline='') as file:
+        with open(DatabasePath, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
 
-    @staticmethod
-    def changeQuantity(name, quantity):#function to change quantity
+    def changeName(self, value):
+        DatabasePath = os.path.join(os.getcwd(), "Databases", "Product.csv")
+        data_list = []
+        with open(DatabasePath, 'r', newline='') as file:
+            reader = csv.reader(file)
+            existing_names = set(row[0] for row in reader)
+            file.seek(0)  # برگرداندن مکان نما به ابتدای فایل
+            for row in reader:
+                data_list.append(row)
+
+        if value in existing_names:
+            print("Product exists with this name!")
+        else:
+            print(f"The product's name changed\nname is: {self.name}.")
+            for row in data_list:
+                if row[0] == self.name:
+                    row[0] = str(value)
+                    break
+
+            with open(DatabasePath, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerows(data_list)
+                
+    def changePrice(self, value):#function to change price
+        DatabasePath = os.path.join(os.getcwd(), "Databases", "Product.csv")
         data = []
-        with open('Product.csv', 'r', newline='') as file:
+        with open(DatabasePath, 'r', newline='') as file:
             reader = csv.reader(file)
             data = list(reader)
 
         for row in data:
-            if row[0] == name:
+            if row[0] == self.name:
+                row[1] = str(value)
+                break
+
+        with open(DatabasePath, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
+
+
+    def changeQuantity(self, quantity):#function to change quantity
+        DatabasePath = os.path.join(os.getcwd(), "Databases", "Product.csv")
+        data = []
+        with open(DatabasePath, 'r', newline='') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+
+        for row in data:
+            if row[0] == self.name:
                 row[2] = str(quantity)
                 break
 
-        with open('Product.csv', 'w', newline='') as file:
+        with open(DatabasePath, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
 
@@ -105,14 +175,15 @@ class Goods:
             with open(filename, 'r', newline='') as file:
                 reader = csv.reader(file)
                 for row in reader:
-                    if len(row) == 3:
-                        name, price, quantity = row
-                        goods = Goods(name, float(price), int(quantity))
+                    if len(row) == 4:
+                        name, price, quantity, path = row
+                        goods = Goods(name, float(price), path, int(quantity))
                         goods_list.append(goods)
         except FileNotFoundError:
             print("The file doesn't exist!")
             return None
         return goods_list
+    
     def showDetails(self, page):
         page.Name.setText(str(self.name))
         page.Price.setText(str(self.price))

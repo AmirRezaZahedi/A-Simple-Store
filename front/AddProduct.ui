@@ -27,7 +27,7 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLineEdit" name="lineEdit">
+     <widget class="QLineEdit" name="Name">
       <property name="styleSheet">
        <string notr="true">border:1px solid black;
 font: 14pt &quot;MV Boli&quot;;</string>
@@ -35,7 +35,7 @@ font: 14pt &quot;MV Boli&quot;;</string>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="lineEdit_2">
+     <widget class="QLineEdit" name="Price">
       <property name="styleSheet">
        <string notr="true">border:1px solid black;
 font: 14pt &quot;MV Boli&quot;;</string>
@@ -43,7 +43,7 @@ font: 14pt &quot;MV Boli&quot;;</string>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="lineEdit_3">
+     <widget class="QLineEdit" name="Count">
       <property name="styleSheet">
        <string notr="true">font: 14pt &quot;MV Boli&quot;;
 border:1px solid black;</string>
@@ -146,14 +146,31 @@ color: rgb(255, 255, 255);</string>
   <widget class="QLabel" name="selected_image_label">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>480</y>
+     <x>150</x>
+     <y>510</y>
      <width>531</width>
      <height>121</height>
     </rect>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="ADD">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>440</y>
+     <width>231</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 14pt &quot;MV Boli&quot;;
+background-color: rgb(255, 255, 127);</string>
+   </property>
+   <property name="text">
+    <string>افزودن محصول</string>
    </property>
   </widget>
  </widget>
